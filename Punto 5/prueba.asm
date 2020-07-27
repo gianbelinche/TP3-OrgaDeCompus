@@ -1,4 +1,3 @@
-addi $t0,$zero, 17
-#andi $t1,$t0, 3
+addi $t0,$zero, 2
 addi $t1,$zero, 3
-j $t0, $t1
+load $t3, $t0, 10($t1)

@@ -9,9 +9,11 @@
 		"add":  {"type": "R", "args": ["reg", "reg", "reg"], "fields": {"op": 0, "rs": "#2", "rt": "#3", "rd": "#1", "shamt": 0, "func": 32}, "desc": "$t1 = $t2 + $t3"},
 		"sub":  {"type": "R", "args": ["reg", "reg", "reg"], "fields": {"op": 0, "rs": "#2", "rt": "#3", "rd": "#1", "shamt": 0, "func": 34}, "desc": "$t1 = $t2 - $t3"},
 		"and":  {"type": "R", "args": ["reg", "reg", "reg"], "fields": {"op": 0, "rs": "#2", "rt": "#3", "rd": "#1", "shamt": 0, "func": 36}, "desc": "$t1 = $t2 & $t3"},
-		"nor":   {"type": "R", "args": ["reg", "reg", "reg"], "fields": {"op": 0, "rs": "#2", "rt": "#3", "rd": "#1", "shamt": 0, "func": 39}, "desc": "$t1 = ~($t2 | $t3)"},
+		"nor":  {"type": "R", "args": ["reg", "reg", "reg"], "fields": {"op": 0, "rs": "#2", "rt": "#3", "rd": "#1", "shamt": 0, "func": 39}, "desc": "$t1 = ~($t2 | $t3)"},
 		"or":   {"type": "R", "args": ["reg", "reg", "reg"], "fields": {"op": 0, "rs": "#2", "rt": "#3", "rd": "#1", "shamt": 0, "func": 37}, "desc": "$t1 = $t2 | $t3"},
 		"slt":  {"type": "R", "args": ["reg", "reg", "reg"], "fields": {"op": 0, "rs": "#2", "rt": "#3", "rd": "#1", "shamt": 0, "func": 42}, "desc": "$t1 = ($t2 < $t3) ? 1 : 0"},
+		"multi":{"type": "I", "args": ["reg", "int"], "fields": {"op": 6, "rs": "#1", "rt": 12, "imm": "#2"}, "desc": "$t4 = $t1 * imm"},
+		"mflo": {"type": "R", "args": ["reg"], "fields": {"op": 0, "rs": 0, "rt": 0, "rd": "#1", "shamt": 0, "func": 18}, "desc": "$t1 = LO"},
 		"addi": {"type": "I", "args": ["reg", "reg", "int"], "fields": {"op": 8, "rs": "#2", "rt": "#1", "imm": "#3"}, "desc": "$t1 = $t2 + 23"},
 		"andi": {"type": "I", "args": ["reg", "reg", "int"], "fields": {"op": 6, "rs": "#2", "rt": "#1", "imm": "#3"}, "desc": "$t1 = $t2 & 23"},
 		"beq":  {"type": "I", "args": ["reg", "reg", "offset"], "fields": {"op": 4, "rs": "#1", "rt": "#2", "imm": "#3"}, "desc": "PC += ($t1 == $t2) ? (offset * 4 + 4) : 4"},
@@ -29,11 +31,12 @@
 		"ble":  {"args": ["reg", "reg", "offset"], "to": ["sgt $1, #1, #2", "beq $1, $0, #3"], "desc": "PC += ($t1 <= $t2) ? (offset * 4 + 4) : 4"},
 		"b":    {"args": ["offset"], "to": ["beq $0, $0, #1"], "desc": "PC += offset * 4 + 4"},
 		"neg":  {"args": ["reg", "reg"], "to": ["sub #1, $0, #2"], "desc": "$t1 = -$t2"},
-		"not":  {"args": ["reg", "reg"], "to": ["nor #1, #2, $0"], "desc": "$t1 = ~$t2"}
+		"not":  {"args": ["reg", "reg"], "to": ["nor #1, #2, $0"], "desc": "$t1 = ~$t2"},
+		"load": {"args": ["reg", "reg", "data"], "to": ["multi #2, #3.base", "mflo #1", "add #1, #1, #3.offset", "lw #1, 0(#1)"], "desc": "$t1 = MEM[base * $t2 + $t3]"}
 	},
 	"control": {
 		"0": {"RegDst": 1, "RegWrite": 1, "ALUOp": 2, "ALUSrc": 0, "MemToReg": 0},
-		"6": {"RegDst": 0, "RegWrite": 1, "ALUOp": 3, "ALUSrc": 1, "MemToReg": 0},
+		"6": {"RegDst": 0, "RegWrite": 0, "ALUOp": 3, "ALUSrc": 1, "MemToReg": 0},
 		"8": {"RegDst": 0, "RegWrite": 1, "ALUOp": 0, "ALUSrc": 1, "MemToReg": 0},
 		"4": {"ALUOp": 1, "ALUSrc": 0, "Branch": 1},
 		"35": {"ALUOp": 0, "ALUSrc": 1, "RegDst": 0, "RegWrite": 1, "MemRead": 1, "MemWrite": 0, "MemToReg": 1},
@@ -46,18 +49,21 @@
 		"control": [
 			{"aluop": 0, "out": {"Operation": 2}},
 			{"aluop": 1, "out": {"Operation": 6}},
+			{"aluop": 2, "func": 18, "out": {"Operation": 4}},
 			{"aluop": 2, "func": 32, "out": {"Operation": 2}},
 			{"aluop": 2, "func": 34, "out": {"Operation": 6}},
 			{"aluop": 2, "func": 36, "out": {"Operation": 0}},
 			{"aluop": 2, "func": 37, "out": {"Operation": 1}},
 			{"aluop": 2, "func": 42, "out": {"Operation": 7}},
 			{"aluop": 2, "func": 39, "out": {"Operation": 12}},
-			{"aluop": 3, "out": {"Operation": 0}}
+			{"aluop": 3, "out": {"Operation": 3}}
 		],
 		"operations": {
 			"0": "and",
 			"1": "or",
 			"2": "add",
+			"3": "mult",
+			"4": "mflo",
 			"6": "sub",
 			"7": "slt",
 			"12": "nor"
