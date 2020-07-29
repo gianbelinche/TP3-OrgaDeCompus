@@ -1,4 +1,10 @@
 addi $t0,$zero, 17
 #andi $t1,$t0, 3
-addi $t1,$zero, 3
+addi $t1,$zero, 2
 jmp $t0, $t1
+addi $t1,$zero, 3
+addi $t1,$zero, 4
+addi $t1,$zero, 5
+addi $t1,$zero, 6
+addi $t1,$zero, 7
+addi $t1,$zero, 8
